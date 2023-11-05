@@ -5,10 +5,11 @@ const express = require("express");
 const fs = require("fs");
 const ip = require("ip");
 
-const host = process.env.HOST_IP || ip.address();
+const host = process.env.KAFKA_IP || ip.address();
+const port = process.env.KAFKA_PORT;
 
 const kafka = new Kafka({
-  brokers: [`${host}:9092`],
+  brokers: [`${host}:${port}`],
   clientId: "example-producer",
 });
 

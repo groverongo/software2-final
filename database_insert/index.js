@@ -7,7 +7,7 @@ const ip = require("ip");
 
 const axios = require("axios");
 
-const host = process.env.HOST_IP || ip.address();
+const host = process.env.KAFKA_IP || ip.address();
 const port = process.env.KAFKA_PORT;
 
 const kafka = new Kafka({
@@ -29,9 +29,8 @@ const consumer = kafka.consumer({ groupId: "anime-insert-group" });
 const producer = kafka.producer();
 
 const client = createClient({
-  url: "libsql://reliability-grobereiner.turso.io",
-  authToken:
-    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIyMDIzLTExLTA1VDAwOjA0OjM4LjA1NTQ1OTY1MloiLCJpZCI6ImRjNTY5ZDQyLTdiNmUtMTFlZS05MzZkLWY2NmVlZmQ0MzUwYyJ9.SlRP-Io9nC9DUtTXn0uaV1UW25j-EMSOxHUn32FC1vYlaCOE9-WK28F7aPen1SSsTgiE-zOWncwDywZc7FsTAw",
+  url: process.env.TURSO_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
 const run = async () => {
@@ -51,7 +50,7 @@ const run = async () => {
 
       let exists = await anime_exists(message_details.key);
       if (exists) {
-        console.log(`Anime ${message_details.key} exists in database`);
+        console.log(`Anime ${message_details.key} exists in database - No Insertion`);
         return;
       }
 

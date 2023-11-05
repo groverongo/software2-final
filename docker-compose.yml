@@ -24,4 +24,15 @@ services:
     ports: 
       - '3000:3000'
     environment:
-      - HOST_IP=${HOST_IP}
+      - KAFKA_IP=${HOST_IP}
+  database_insert:
+    build: ./database_insert
+    container_name: reliability_database_insert
+    environment:
+      - KAFKA_IP=${HOST_IP}
+  retries:
+    build: ./retries
+    container_name: reliability_retries
+    environment:
+      - KAFKA_IP=${HOST_IP}
+    
