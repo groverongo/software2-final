@@ -15,7 +15,7 @@ Contiene un endpoint ```/get-anime/{id}```
 Escucha el topico ```topic_http``` y realiza las siguientes instrucciones para cada mensaje.
 
 1. Si el anime se encuentra en la base de datos (TURSO), terminar.
-2. Si el anime no se encuentra en la base de datos (TURSO), realizar la llamada a la api Jikan, si Jikan todavía permite que se hagan llamadas, enviar el contenido a la cola Kafka con el tópico ```topic_db``.
+2. Si el anime no se encuentra en la base de datos (TURSO), realizar la llamada a la api Jikan, si Jikan todavía permite que se hagan llamadas, enviar el contenido a la cola Kafka con el tópico ```topic_db```.
 3. Si Jikan no permite que se hagan llamadas, enviar el mensaje al servicio de Kafka con el topico ```topic_http```.
 
 ### Database_Insert
