@@ -1,0 +1,13 @@
+FROM node:18-alpine
+
+WORKDIR /db_insert
+
+COPY . .
+
+RUN npm install
+
+ENV TURSO_URL="libsql://reliability-grobereiner.turso.io"
+ENV TURSO_AUTH_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIyMDIzLTExLTA1VDAwOjA0OjM4LjA1NTQ1OTY1MloiLCJpZCI6ImRjNTY5ZDQyLTdiNmUtMTFlZS05MzZkLWY2NmVlZmQ0MzUwYyJ9.SlRP-Io9nC9DUtTXn0uaV1UW25j-EMSOxHUn32FC1vYlaCOE9-WK28F7aPen1SSsTgiE-zOWncwDywZc7FsTAw"
+ENV KAFKA_PORT=9092
+
+CMD ["node", "index.js"]
