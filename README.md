@@ -98,6 +98,12 @@ sh.enableSharding("anime")
 sh.shardCollection("anime.anime", { '_id': 'hashed' } )
 ```
 
+## Levantar arquitectura sin DB (Levantar la DB antes)
+
+```sh
+./run_docker.sh
+```
+
 ## Descripción de servicios
 
 ### API
