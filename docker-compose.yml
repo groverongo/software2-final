@@ -24,15 +24,18 @@ services:
     ports: 
       - '3000:3000'
     environment:
+      - MONGO_URI=${MONGO_URI}
       - KAFKA_IP=${HOST_IP}
   database_insert:
     build: ./database_insert
     container_name: reliability_database_insert
     environment:
+      - MONGO_URI=${MONGO_URI}
       - KAFKA_IP=${HOST_IP}
   retries:
     build: ./retries
     container_name: reliability_retries
     environment:
+      - MONGO_URI=${MONGO_URI}
       - KAFKA_IP=${HOST_IP}
     

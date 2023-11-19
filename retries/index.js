@@ -7,8 +7,9 @@ const axios = require("axios");
 
 const host = process.env.KAFKA_IP || ip.address();
 const port = process.env.KAFKA_PORT;
+const uri = process.env.MONGO_URI;
 
-const { createClient } = require("@libsql/client");
+const {MongoClient} = require('mongodb');
 
 const kafka = new Kafka({
   brokers: [`${host}:${port}`],
@@ -20,16 +21,12 @@ const topic_db = "anime-insert";
 const consumer = kafka.consumer({ groupId: "anime-request-group" });
 const producer = kafka.producer();
 
-const client = createClient({
-  url: process.env.TURSO_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
-const anime_exists = async (id) => {
-  const result = await client.execute({
-    sql: `SELECT count(1) FROM "anime" WHERE id = :id`,
-    args: { id: Math.floor(id) },
-  });
-  let count = result.rows[0]["count (1)"];
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const anime_exists = async (id) => {  
+  let query = { "_id": Math.floor(id) };
+  let cursor = await collection.find(query).toArray();
+  let count = cursor.length;
   return count > 0;
 };
 

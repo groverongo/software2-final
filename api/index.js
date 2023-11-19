@@ -4,31 +4,29 @@ const port = process.env.PORT;
 
 const axios = require("axios");
 
-
-const { createClient } = require("@libsql/client");
+const {MongoClient} = require('mongodb');
 
 const { producer, topic_db, topic_http } = require("./bmq_config");
 
-const client = createClient({
-  url: process.env.TURSO_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Mongo Client
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const database = client.db("anime");
+const collection = database.collection("anime");
 
-let anime_exists = async (id) => {
-  const result = await client.execute({
-    sql: `SELECT count(1) FROM "anime" WHERE id = :id`,
-    args: { id: Math.floor(id) },
-  });
-  let count = result.rows[0]["count (1)"];
+const anime_exists = async (id) => {  
+  let query = { "_id": Math.floor(id) };
+  let cursor = await collection.find(query).toArray();
+  let count = cursor.length;
   return count > 0;
 };
 
 const get_anime = async (id) => {
-  const result = await client.execute({
-    sql: `SELECT content FROM "anime" WHERE id = :id`,
-    args: { id: id },
-  });
-  return result.rows[0]["content"];
+  
+  let query = { "_id": Math.floor(id) };
+  let cursor = await collection.findOne(query);
+
+  return cursor.content;
 };
 
 app.get("/get-anime/:id", async (req, res) => {

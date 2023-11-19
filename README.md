@@ -1,5 +1,103 @@
 # Sistema de retries
 
+## Levantar Mongo Distribuido
+
+### Levantar servidores config
+
+Conjunto de servidores config 1 y 2
+
+```bash
+docker-compose -f database/config/docker-compose.yaml up -d
+```
+
+Acceder al conjunto 1
+```bash
+mongosh mongodb://172.22.139.146:10001
+```
+y ejecutar:
+```js
+rs.initiate({
+  _id: "cfgrs",
+  configsvr: true,
+  members: [
+    { _id: 0, host: "172.22.139.146:10001" },
+    { _id: 1, host: "172.22.139.146:10002" },
+  ],
+});
+```
+
+Acceder al conjunto 2
+```bash
+mongosh mongodb://172.22.139.146:10011
+```
+y ejecutar:
+```js
+rs.initiate({
+  _id: "cfgrs",
+  configsvr: true,
+  members: [
+    { _id: 0, host: "172.22.139.146:10011" },
+    { _id: 1, host: "172.22.139.146:10012" },
+  ],
+});
+```
+
+### Levantar servidores shard
+
+Conjunto de servidores shard  1 y 2
+
+```bash
+docker-compose -f database/shard/docker-compose.yaml up -d
+```
+
+Acceder al conjunto 1
+```bash
+mongosh mongodb://172.22.139.146:20001
+```
+y ejecutar:
+```js
+rs.initiate({
+  _id: "shard1rs",
+  members: [
+    { _id: 0, host: "172.22.139.146:20001" },
+    { _id: 1, host: "172.22.139.146:20002" },
+  ],
+});
+```
+
+Acceder al conjunto 2
+```bash
+mongosh mongodb://172.22.139.146:20011
+```
+y ejecutar:
+```js
+rs.initiate({
+  _id: "shard2rs",
+  members: [
+    { _id: 0, host: "172.22.139.146:20011" },
+    { _id: 1, host: "172.22.139.146:20012" },
+  ],
+});
+```
+
+### Levantar servidor cluster
+
+```bash
+docker-compose -f database/mongos/docker-compose.yaml up -d
+```
+
+Agregar shards
+```js
+sh.addShard("shard1rs/172.22.139.146:20001,172.22.139.146:20002")
+sh.addShard("shard2rs/172.22.139.146:20011,172.22.139.146:20012")
+```
+
+Declarar colección con shards y definir el tipo de distribución (hash por id)
+```js
+sh.enableSharding("anime")
+sh.shardCollection("anime.anime", { '_id': 'hashed' } )
+```
+
 ## Descripción de servicios
 
 ### API

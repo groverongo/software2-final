@@ -1,14 +1,22 @@
 const { Kafka, CompressionTypes, logLevel } = require("kafkajs");
 
-const { createClient } = require("@libsql/client");
-
 const fs = require("fs");
 const ip = require("ip");
 
 const axios = require("axios");
 
+const { MongoClient } = require("mongodb");
+
 const host = process.env.KAFKA_IP || ip.address();
 const port = process.env.KAFKA_PORT;
+const uri = process.env.MONGO_URI;
+
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const database = client.db("anime");
+const collection = database.collection("anime");
 
 const kafka = new Kafka({
   brokers: [`${host}:${port}`],
@@ -16,22 +24,15 @@ const kafka = new Kafka({
 });
 
 const anime_exists = async (id) => {
-  const result = await client.execute({
-    sql: `SELECT count(1) FROM "anime" WHERE id = :id`,
-    args: { id: Math.floor(id) },
-  });
-  let count = result.rows[0]["count (1)"];
+  let query = { _id: Math.floor(id) };
+  let cursor = await collection.find(query).toArray();
+  let count = cursor.length;
   return count > 0;
 };
 
 const topic_db = "anime-insert";
 const consumer = kafka.consumer({ groupId: "anime-insert-group" });
 const producer = kafka.producer();
-
-const client = createClient({
-  url: process.env.TURSO_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
 
 const run = async () => {
   await consumer.connect();
@@ -50,17 +51,16 @@ const run = async () => {
 
       let exists = await anime_exists(message_details.key);
       if (exists) {
-        console.log(`Anime ${message_details.key} exists in database - No Insertion`);
+        console.log(
+          `Anime ${message_details.key} exists in database - No Insertion`
+        );
         return;
       }
 
-      client
-        .execute({
-          sql: `INSERT INTO "anime"  VALUES (:id, :content)`,
-          args: {
-            id: Math.floor(message_details.key),
-            content: message_details.value,
-          },
+      collection
+        .insertOne({
+          _id: Math.floor(message_details.key),
+          content: JSON.parse(message_details.value),
         })
         .catch((err) => {
           console.log(err);
