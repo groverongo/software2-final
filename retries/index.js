@@ -22,6 +22,8 @@ const consumer = kafka.consumer({ groupId: "anime-request-group" });
 const producer = kafka.producer();
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const database = client.db("anime");
+const collection = database.collection("anime");
 
 const anime_exists = async (id) => {  
   let query = { "_id": Math.floor(id) };
