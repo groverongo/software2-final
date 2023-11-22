@@ -11,6 +11,7 @@ const port = process.env.KAFKA_PORT;
 const kafka = new Kafka({
   brokers: [`${host}:${port}`],
   clientId: "example-producer",
+  logLevel: logLevel.DEBUG,
 });
 
 const topic_http = "anime-request";

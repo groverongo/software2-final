@@ -21,6 +21,7 @@ const collection = database.collection("anime");
 const kafka = new Kafka({
   brokers: [`${host}:${port}`],
   clientId: "example-database",
+  logLevel: logLevel.DEBUG,
 });
 
 const anime_exists = async (id) => {

@@ -14,6 +14,7 @@ const {MongoClient} = require('mongodb');
 const kafka = new Kafka({
   brokers: [`${host}:${port}`],
   clientId: "example-retries",
+  logLevel: logLevel.DEBUG,
 });
 
 const topic_http = "anime-request";
@@ -24,6 +25,15 @@ const producer = kafka.producer();
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const database = client.db("anime");
 const collection = database.collection("anime");
+
+// collection exists
+const collection_exists = async () => {
+  let collections = await database.listCollections().toArray();
+  console.log(`[COLECCIONES]: ${collections}`)
+  let count = collections.length;
+  return count > 0;
+};
+collection_exists()
 
 const anime_exists = async (id) => {  
   let query = { "_id": Math.floor(id) };
