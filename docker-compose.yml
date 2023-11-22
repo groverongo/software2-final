@@ -26,6 +26,21 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
       - KAFKA_IP=${HOST_IP}
+  api1:
+    build: ./api
+    container_name: reliability_api_1
+    ports: 
+      - '3001:3000'
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - KAFKA_IP=${HOST_IP}
+  nginx:
+    build: ./load_balancer
+    ports:
+    - "8080:80"
+    depends_on:
+      - api
+      - api1
   database_insert:
     build: ./database_insert
     container_name: reliability_database_insert
